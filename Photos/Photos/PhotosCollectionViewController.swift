@@ -10,23 +10,68 @@ import UIKit
 
 class PhotosCollectionViewController: UICollectionViewController {
     var photos: [Photo]!
+//    var selectedPhotoIndex : Int!;
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         let api = InstagramAPI()
         api.loadPhotos(didLoadPhotos)
+        self.view.backgroundColor = UIColor.clearColor();
+        self.collectionView?.backgroundColor = UIColor.clearColor();
         // FILL ME IN
     }
 
-    /* 
-     * IMPLEMENT ANY COLLECTION VIEW DELEGATE METHODS YOU FIND NECESSARY
-     * Examples include cellForItemAtIndexPath, numberOfSections, etc.
-     */
+   
+    override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! CustomCell
+        let currPhoto : Photo!;
+        if (photos != nil) {
+            currPhoto = photos[indexPath.section*2 + indexPath.item];
+            loadImageForCell(currPhoto, imageView: cell.imageView)
+            cell.backgroundColor = UIColor.clearColor();
+        }
+        return cell;
+    }
+
     
-    /* Creates a session from a photo's url to download data to instantiate a UIImage. 
-       It then sets this as the imageView's image. */
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        
+        if (segue.identifier == "viewFullImageSegue") {
+            let viewController = segue.destinationViewController as! FullImageViewController
+            let photo : Photo!;
+            if (photos != nil) {
+                let cell = sender as! UICollectionViewCell;
+                let indexPath = self.collectionView!.indexPathForCell(cell)
+                photo = photos[indexPath!.section*2 + indexPath!.item];
+                let url = NSURL(string: photo.url)
+                let data = NSData(contentsOfURL: url!)
+                
+                viewController.setUpLabels(photo.username, likes: String(photo.likes), image: UIImage(data: data!)!, createdtime: photo.createdtime);
+            }
+        }
+    }
+    
+    override func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
+        if (photos != nil) {
+            return photos.count/2;
+        }
+        return 0;
+    }
+    
+    override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 2;
+    }
+    
+    
+    
+    /* Creates a session from a photo's url to download data to instantiate a UIImage.
+    It then sets this as the imageView's image. */
+    
     func loadImageForCell(photo: Photo, imageView: UIImageView) {
+        let url = NSURL(string: photo.url)
+        let data = NSData(contentsOfURL: url!)
+        imageView.image = UIImage(data: data!)
         
     }
     
