@@ -13,4 +13,5 @@ class CustomCell: UICollectionViewCell {
     @IBOutlet var imageView: UIImageView!
     
     
+    
 }
